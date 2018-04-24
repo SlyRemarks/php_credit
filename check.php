@@ -1,7 +1,7 @@
 <?php
 
 #  This script is designed to be run by cron.
-#  It updates the database so a set schedule,
+#  It updates the database to a set schedule,
 #  ensuring records are updated should the webhook
 #  method fail.
 

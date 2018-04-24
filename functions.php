@@ -35,28 +35,6 @@ function currencyInteger($var)
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 
-function issueOrNot()
-{
-  global $no_list,   $credit_issued,
-         $yes_list,  $status,
-         $to_credit, $credit_qty;
-  foreach($no_list as $no_issue) {
-    if ($no_issue === $status) {
-      $credit_issued = 0;
-    }
-    else {
-      foreach($yes_list as $yes_issue) {
-        if ($yes_issue === $status) {
-          $credit_issued = (int)ceil($to_credit / 100) + $credit_qty;
-        }
-      }
-    }
-  }
-}
-
-# -------------------------------------------------------------------------------------------
-# -------------------------------------------------------------------------------------------
-
 function getLatest()
 {
   global $shop_hash, $headers;
@@ -86,7 +64,10 @@ function getData()
   global $id,           $status,        $customer,   $email,
          $date_created, $date_modified, $products,   $shipping,
          $tax,          $credit_qty,    $credit_ppu, $creditable,
-         $credit_pct,   $credit_issued, $shop_hash,  $headers, $credit_SKU;
+         $credit_pct,   $credit_issued, $shop_hash,  $headers, $credit_SKU,
+         $no_list,
+         $yes_list,
+         $to_credit;
          
   $url = "";
   $url_order_info      = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/orders/'.$id;
@@ -163,7 +144,19 @@ function getData()
   
   $creditable    = (int)($products - $credit_cost);
   $to_credit     = (($creditable / 100) * $credit_pct);
-
+  
+  foreach($no_list as $no_issue) {
+    if ($no_issue === $status) {
+      $credit_issued = 0;
+    }
+    else {
+      foreach($yes_list as $yes_issue) {
+        if ($yes_issue === $status) {
+          $credit_issued = (int)ceil($to_credit / 100) + $credit_qty;
+        }
+      }
+    }
+  }
 }
 
 # -------------------------------------------------------------------------------------------
@@ -204,7 +197,7 @@ function connectDB()
          $date_created, $date_modified, $products,   $shipping,
          $tax,          $credit_qty,    $credit_ppu, $creditable,
          $credit_pct,   $credit_issued, $servername, $port,
-         $database,     $username,      $password,   $pdo_options;
+         $database,     $username,      $password,   $pdo_options, $table;
   try
   {
     $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database;charset=utf8", $username, $password, $pdo_options);

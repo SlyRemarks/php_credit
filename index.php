@@ -1,22 +1,22 @@
 <?php
 
-#---------------------------------------------------------------------------------------------------------------------
-#-- Include Config File ----------------------------------------------------------------------------------------------
-
-require_once("config.php");
-
-#---------------------------------------------------------------------------------------------------------------------
-#-- Catch and Process Post -------------------------------------------------------------------------------------------
+require_once("assets/config.php");
+require_once("functions.php");
 
 $id = 0;
-$headers = apache_request_headers();
-if (isset($headers)) {
-  if ($headers["accesskey"] === $access_key) {
+$headers_req = apache_request_headers();
+if (isset($headers_req)) {
+  if ($headers_req["accesskey"] === $access_key) {
     $body = file_get_contents('php://input');
     if ($body && $body != "") {
-      $id_tag = json_decode($body, true);
-      if (isset($id_tag["data"]["id"]) && is_int($id_tag["data"]["id"])) {
-        $id_tag = $id_tag["data"]["id"];
+      $id_req = json_decode($body, true);
+      if (isset($id_req["data"]["id"]) && is_int($id_req["data"]["id"])) {
+        $id = (string)$id_req["data"]["id"];
+        userPrompt();
+        getData($id);
+        issueOrNot();
+        printOutput();
+        connectDB();
       }
     }
   }
@@ -27,3 +27,5 @@ if (isset($headers)) {
 else {
   die;
 }
+
+

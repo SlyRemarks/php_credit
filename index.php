@@ -1,7 +1,7 @@
 <?php
 
 require_once("assets/config.php");
-require_once("functions.php");
+require_once("php_credit_lib.php");
 
 $id = 0;
 $headers_req = apache_request_headers();

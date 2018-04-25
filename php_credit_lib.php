@@ -1,5 +1,57 @@
-
 <?php
+
+function getBatch()
+{
+  global $shop_hash, $query, $headers;
+  
+  $request = curl_init();
+  
+  $url_order_info = "https://api.bigcommerce.com/stores/$shop_hash/v2/orders/?".$query;
+  
+  curl_setopt($request, CURLOPT_HTTPHEADER    , $headers);
+  curl_setopt($request, CURLOPT_URL           , $url_order_info);
+  curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($request, CURLOPT_FAILONERROR   , true);
+  
+  $response_info        = curl_exec($request);
+  
+  if(!$response_info || strlen(trim($response_info)) == 0)
+  {
+    echo 'EMPTY RESPONSE!';
+    return "EMPTY_RESPONSE";
+  }
+  
+  if(curl_exec($request) === false)
+  {
+    echo "< CURL ERROR: " . curl_error($request) . " >" . "\n";
+    return "CURL_ERROR";
+  }
+  
+  curl_close ($request);
+  
+  $response_info = json_decode($response_info, true);
+  
+  return $response_info;
+}
+
+# ---------------------------------------------------------------------------------------------------
+
+function queryBuild()
+{
+  global $result, $min_date_modified, $date_now, $limit, $page;
+  
+  $min_date_modified = $result['latest_record'];
+  $min_date_modified = date(DATE_RFC2822, $min_date_modified);
+
+  $query = http_build_query([
+   'min_date_modified' => (string)$min_date_modified,
+   'max_date_modified' => (string)$date_now,
+   "limit"             => (string)$limit,
+   "page"              => (string)$page,
+  ]);
+  
+  return $query;
+}
 
 # -------------------------------------------------------------------------------------------
 
@@ -90,6 +142,7 @@ function getData()
   
   $url_order_customers = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/customers/'.$customer;
   $url = $url_order_customers;
+  
     curl_setopt_array($ch, array
   (
     CURLOPT_HTTPHEADER      => $headers,
@@ -102,6 +155,7 @@ function getData()
 
   $url_order_products  = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/orders/'.$id.'/products';
   $url = $url_order_products;
+  
   curl_setopt_array($ch, array
   (
     CURLOPT_HTTPHEADER      => $headers,
@@ -117,7 +171,6 @@ function getData()
     return "not_exist";
   }
   curl_close($ch);
-
 
   $json_response_customer  = json_decode($response_customer, true);
   $json_response_products  = json_decode($response_products, true);
@@ -170,22 +223,22 @@ function printOutput()
          $tax,          $credit_qty,    $credit_ppu, $creditable,
          $credit_pct,   $credit_issued;
   
-  $mask = "%32.32s %-20.20s %-10.10s \n";
+  $mask = "%32.32s %-40.40s \n";
   echo("\n");
-  printf($mask,"id: "           , $id                      , gettype($id));
-  printf($mask,"status: "       , $status                  , gettype($status));
-  printf($mask,"customer: "     , $customer                , gettype($customer));
-  printf($mask,"email: "        , substr($email,0,10)."...", gettype($email));
-  printf($mask,"date_created: " , $date_created            , gettype($date_created));
-  printf($mask,"date_modified: ", $date_modified           , gettype($date_modified));
-  printf($mask,"products: "     , $products                , gettype($products));
-  printf($mask,"shipping: "     , $shipping                , gettype($shipping));
-  printf($mask,"tax: "          , $tax                     , gettype($tax));
-  printf($mask,"credit_qty: "   , $credit_qty              , gettype($credit_qty));
-  printf($mask,"credit_ppu: "   , $credit_ppu              , gettype($credit_ppu));
-  printf($mask,"creditable: "   , $creditable              , gettype($creditable));
-  printf($mask,"credit_pct: "   , $credit_pct              , gettype($credit_pct));
-  printf($mask,"credit_issued: ", $credit_issued           , gettype($credit_issued));
+  printf($mask,"id: "           , $id);
+  printf($mask,"status: "       , $status);
+  printf($mask,"customer: "     , $customer);
+  printf($mask,"email: "        , substr($email,0,10)."...");
+  printf($mask,"date_created: " , $date_created);
+  printf($mask,"date_modified: ", $date_modified);
+  printf($mask,"products: "     , $products);
+  printf($mask,"shipping: "     , $shipping);
+  printf($mask,"tax: "          , $tax);
+  printf($mask,"credit_qty: "   , $credit_qty);
+  printf($mask,"credit_ppu: "   , $credit_ppu);
+  printf($mask,"creditable: "   , $creditable);
+  printf($mask,"credit_pct: "   , $credit_pct);
+  printf($mask,"credit_issued: ", $credit_issued);
   echo("\n");
 }
 

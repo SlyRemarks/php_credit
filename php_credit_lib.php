@@ -373,7 +373,7 @@ function connectDB()
     
     $stmt = $conn->prepare(
       
-    "INSERT INTO :table (
+    "INSERT INTO $table (
       id,  status,
       customer,
       email,
@@ -421,7 +421,6 @@ function connectDB()
       credit_issued= :credit_issued"
     );
  
-    $stmt->bindParam(':table'        , $table        , PDO::PARAM_STR);
     $stmt->bindParam(':id'           , $id           , PDO::PARAM_INT);
     $stmt->bindParam(':status'       , $status       , PDO::PARAM_STR);
     $stmt->bindParam(':customer'     , $customer     , PDO::PARAM_STR);

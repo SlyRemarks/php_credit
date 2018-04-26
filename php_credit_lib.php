@@ -4,6 +4,39 @@
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 
+function maxmodifiedDB()
+{
+  global $servername, $port,
+         $database,   $username,
+         $password,   $pdo_options;
+  
+  try
+  {
+    $conn = new PDO("mysql:host=$servername;
+                     port=$port;dbname=$database",
+                     $username,
+                     $password,
+                     $pdo_options);
+                     
+    $request = $conn->prepare("SELECT MAX(date_modified) as latest_record FROM orders");
+    $request->execute();
+    $result  = $request->fetch(PDO::FETCH_ASSOC);
+  }
+  
+  catch(PDOException $e)
+  {
+    error_log("CONNECTION FAILED: $function_name", 3, "error.log");
+    echo "CONNECTION FAILED! " . $e->getMessage() . "\n";
+    return "FAILED";
+  }
+ 
+  $conn = null;
+}
+
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+
 function getBatch()
 {
   global $shop_hash,
@@ -326,36 +359,6 @@ function getData($var)
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 
-function printOutput()
-{
-  global $id,           $status,        $customer,   $email,
-         $date_created, $date_modified, $products,   $shipping,
-         $tax,          $credit_qty,    $credit_ppu, $creditable,
-         $credit_pct,   $credit_issued;
-  
-  $mask = "%32.32s %-40.40s \n";
-  echo("\n");
-  printf($mask,"id: "           , $id);
-  printf($mask,"status: "       , $status);
-  printf($mask,"customer: "     , $customer);
-  printf($mask,"email: "        , substr($email,0,10)."...");
-  printf($mask,"date_created: " , $date_created);
-  printf($mask,"date_modified: ", $date_modified);
-  printf($mask,"products: "     , $products);
-  printf($mask,"shipping: "     , $shipping);
-  printf($mask,"tax: "          , $tax);
-  printf($mask,"credit_qty: "   , $credit_qty);
-  printf($mask,"credit_ppu: "   , $credit_ppu);
-  printf($mask,"creditable: "   , $creditable);
-  printf($mask,"credit_pct: "   , $credit_pct);
-  printf($mask,"credit_issued: ", $credit_issued);
-  echo("\n");
-}
-
-# -------------------------------------------------------------------------------------------
-# -------------------------------------------------------------------------------------------
-# -------------------------------------------------------------------------------------------
-
 function connectDB()
 {
   global $id,           $status,        $customer,   $email,
@@ -370,7 +373,7 @@ function connectDB()
     
     $stmt = $conn->prepare(
       
-    "INSERT INTO $table (
+    "INSERT INTO :table (
       id,  status,
       customer,
       email,
@@ -417,7 +420,8 @@ function connectDB()
       credit_pct=    :credit_pct,
       credit_issued= :credit_issued"
     );
-    
+ 
+    $stmt->bindParam(':table'        , $table        , PDO::PARAM_STR);
     $stmt->bindParam(':id'           , $id           , PDO::PARAM_INT);
     $stmt->bindParam(':status'       , $status       , PDO::PARAM_STR);
     $stmt->bindParam(':customer'     , $customer     , PDO::PARAM_STR);
@@ -450,5 +454,78 @@ function connectDB()
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
+
+function getEntry($val)
+{
+  global $servername, $port,
+         $database,   $username,
+         $password,   $pdo_options,
+         $table;
+         
+  $id = $val;
+  
+  try
+  {
+    $conn = new PDO("mysql:host=$servername;
+                     port=$port;
+                     dbname=$database",
+                     $username,
+                     $password,
+                     $pdo_options);
+                     
+    $request = $conn->prepare("SELECT * FROM $table WHERE ID=:id");
+    $request->bindParam(':id', $id, PDO::PARAM_STR);
+    $request->execute();
+    $result  = $request->fetch(PDO::FETCH_ASSOC);
+  }
+  
+  catch(PDOException $e)
+  {
+    error_log("CONNECTION FAILED: $function_name", 3, "error.log");
+    echo "CONNECTION FAILED! " . $e->getMessage() . "\n";
+    return "FAILED";
+  }
+  
+  if(empty($result))
+  {
+    echo "NO RECORD FOUND\n";
+    die;
+  }
+ 
+  $conn = null;
+
+  $id            = $result['id'];
+  $status        = $result['status'];
+  $customer      = $result['customer'];
+  $email         = $result['email'];
+  $date_created  = $result['date_created'];
+  $date_modified = $result['date_modified'];
+  $products      = $result['products'];
+  $shipping      = $result['shipping'];
+  $tax           = $result['tax'];
+  $credit_qty    = $result['credit_qty'];
+  $credit_ppu    = $result['credit_ppu'];
+  $creditable    = $result['creditable'];
+  $credit_pct    = $result['credit_pct'];
+  $credit_issued = $result['credit_issued'];
+  
+  $mask = "%32.32s %-60.60s \n";
+  echo("\n");
+  printf($mask,"id: "           , $id);
+  printf($mask,"status: "       , $status);
+  printf($mask,"customer: "     , $customer);
+  printf($mask,"email: "        , substr($email,0,60));
+  printf($mask,"date_created: " , $date_created);
+  printf($mask,"date_modified: ", $date_modified);
+  printf($mask,"products: "     , $products);
+  printf($mask,"shipping: "     , $shipping);
+  printf($mask,"tax: "          , $tax);
+  printf($mask,"credit_qty: "   , $credit_qty);
+  printf($mask,"credit_ppu: "   , $credit_ppu);
+  printf($mask,"creditable: "   , $creditable);
+  printf($mask,"credit_pct: "   , $credit_pct);
+  printf($mask,"credit_issued: ", $credit_issued);
+  echo("\n");
+}
 
 ?>

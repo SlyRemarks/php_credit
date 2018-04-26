@@ -2,82 +2,100 @@
 
 <?php
 
-// RUN BY CRON; UPDATEs RECORDS IF WEBHOOK METHOD (index.php) FAILS:
+// RUN BY CRON; UPDATES RECORDS IF WEBHOOK METHOD (index.php) FAILS:
+// SYMLINK LOCATION: /etc/cron.hourly
 
 require_once("assets/config.php");
 require_once("php_credit_lib.php");
 
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+
 date_default_timezone_set("Europe/London");
 $date_now = date(DateTime::RFC2822);
 
-#---------------------------------------------------------------------------------------------------------------------
-#-- Get Most Recently Updated Record from Local Database -------------------------------------------------------------
+$maxmodified_db = maxmodifiedDB();
 
-try {
-  $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database", $username, $password, $pdo_options);
-  $request = $conn->prepare("SELECT MAX(date_modified) as latest_record FROM orders");
-  $request->execute();
-  $result = $request->fetch(PDO::FETCH_ASSOC);
+echo $maxmodified_db;
+
+if ($maxmodified_db === "FAILED")
+{
+  die;
 }
 
-catch(PDOException $e) {
-    echo "< CONNECTION FAILED! >" . $e->getMessage();
-    die;
-}
+echo "DATE NOW: " . $date_now . "\n";
 
-$conn = null;
+# -------------------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------------------------------------------
+echo "REQUESTING ORDER ID NUMBERS...\n";
 
-$page  = 1;
-$limit = 250;
-$list_array = array();
+$page         = 1;
+$limit        = 250;
+$list_array   = array();
 $return_value = 0;
 
 while ($return_value == 0)
 {
-  $query = queryBuild();
-  $batch_reply = getBatch();
+  sleep(1);
   $record_count = 0;
+  $query        = queryBuild();
+  $batch_reply  = getBatch();
   
-  if ($batch_reply === "CURL_ERROR" || $batch_reply === "EMPTY_RESPONSE")
+  if ($batch_reply === "REPLY_CONTENT_NULL")
   {
     break;
   }
-  
-  foreach ($batch_reply as $value) {
-    $record_count++ ;
+  elseif ($batch_reply === "CURL_ERROR" ||
+          $batch_reply === "REPLY_CONTENT_NOT_VALID")
+  {
+    die;
   }
-  
-  if ($record_count == $limit) {
-    echo "< RETRIEVING RECORDS >"."\n";
-    array_push($list_array, $batch_reply);
-    $page++;
-  }
-  else {
-    array_push($list_array, $batch_reply);
-    $return_value = 1;
-    break;
+  else
+  {
+    foreach ($batch_reply as $value) {
+      $record_count++ ;
+    }
+    
+    if ($record_count == $limit) {
+      array_push($list_array, $batch_reply);
+      $page++;
+      echo "RETRIEVING PAGE: $page \n";
+    }
+    else
+    {
+      array_push($list_array, $batch_reply);
+      $return_value = 1;
+      break;
+    }
   }
 }
+
+echo "RETRIEVING RECORDS...\n";
+
+#--------------------------------------------------------------------------------------------------------------------
 
 $orders_undone = array();
-
-
 $counting = 0;
-foreach ($list_array as $value) {
-  foreach ($value as $valueb) {
-    array_push($orders_undone, $valueb['id']);
+
+foreach ($list_array as $value)
+{
+  foreach ($value as $value_b)
+  {
+    array_push($orders_undone, $value_b['id']);
   }
 }
-echo $counting;
-print_r($orders_undone);
 
-foreach ($orders_undone as $order) {
-  $id = (string)$order;
-  getData();
-  connectDB();
-  echo "RECORD $id UPDATED!!!!"."\n";
+foreach ($orders_undone as $order)
+{
+  $id       = (string)$order;
+  $get_data = getData($id);
+  if ($get_data === "READY")
+  {
+    connectDB();
+  }
 }
+
+echo "UPDATE COMPLETE\n";
 
 ?>

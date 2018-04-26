@@ -1,8 +1,14 @@
 <?php
 
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+
 function getBatch()
 {
-  global $shop_hash, $query, $headers;
+  global $shop_hash,
+         $query,
+         $headers;
   
   $request = curl_init();
   
@@ -13,32 +19,46 @@ function getBatch()
   curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($request, CURLOPT_FAILONERROR   , true);
   
-  $response_info        = curl_exec($request);
-  
-  if(!$response_info || strlen(trim($response_info)) == 0)
+  $response_info = curl_exec($request);
+
+  if (curl_exec($request) === false)
   {
-    echo 'EMPTY RESPONSE!';
-    return "EMPTY_RESPONSE";
+    $curl_error    = curl_error($request);
+    $function_name = __FUNCTION__;
+    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    return    "CURL_ERROR";
   }
-  
-  if(curl_exec($request) === false)
+
+  if (!$response_info || strlen(trim($response_info)) == 0)
   {
-    echo "< CURL ERROR: " . curl_error($request) . " >" . "\n";
-    return "CURL_ERROR";
+    return "REPLY_CONTENT_NULL";
   }
   
   curl_close ($request);
   
   $response_info = json_decode($response_info, true);
   
+  if ($response_info === false)
+  {
+    $function_name = __FUNCTION__;
+    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    return    "REPLY_CONTENT_NOT_VALID";
+  }
+  
   return $response_info;
 }
 
-# ---------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 
 function queryBuild()
 {
-  global $result, $min_date_modified, $date_now, $limit, $page;
+  global $result,
+         $min_date_modified,
+         $date_now,
+         $limit,
+         $page;
   
   $min_date_modified = $result['latest_record'];
   $min_date_modified = date(DATE_RFC2822, $min_date_modified);
@@ -54,31 +74,20 @@ function queryBuild()
 }
 
 # -------------------------------------------------------------------------------------------
-
-function userPrompt()
-{
-  global $prompt_pd;
-  $recreate_input = readline("TYPE '$prompt_pd' TO REFRESH THE DATABASE:  ");
-  if ($recreate_input !== "$prompt_pd")
-  {
-    die;
-  }
-  $recreate_confirm = readline("ARE YOU SURE? (y/n):  ");
-  if ($recreate_confirm !== "y")
-  {
-    die;
-  }
-  echo "Rebuilding database... " . "\n";
-}
-  
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 
 function currencyInteger($var)
 {
-  if ($var == false) return 0;
+  if ($var === false)
+  {
+    return 0;
+  }
   $var = (float)$var;
-  if ($var == 0) return 0;
+  if ($var == 0)
+  {
+    return 0;
+  }
   $var = $var * 100;
   $var = (int)$var;
   return $var;
@@ -86,14 +95,17 @@ function currencyInteger($var)
 
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 
 function getLatest()
 {
-  global $shop_hash, $headers;
+  global $shop_hash,
+         $headers;
+         
   $request = curl_init();
     
   $url_order_count = "https://api.bigcommerce.com/stores/$shop_hash/" .
-                       "v2/orders/?sort=date_created:desc&limit=1";
+                     "v2/orders/?sort=date_created:desc&limit=1";
   
   curl_setopt($request, CURLOPT_HTTPHEADER    , $headers);
   curl_setopt($request, CURLOPT_URL           , $url_order_count);
@@ -101,17 +113,40 @@ function getLatest()
   curl_setopt($request, CURLOPT_FAILONERROR   , true);
   
   $response_count  = curl_exec($request);
-      
+  
+  if (curl_exec($request) === false)
+  {
+    $curl_error    = curl_error($request);
+    $function_name = __FUNCTION__;
+    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    return "CURL_ERROR";
+  }
+
+  if (!$response_count || strlen(trim($response_count)) == 0)
+  {
+    return "REPLY_CONTENT_NULL";
+  }
+  
   $response_count = json_decode($response_count, true);
+  
+  if ($response_count === false)
+  {
+    $function_name = __FUNCTION__;
+    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    return "REPLY_CONTENT_NOT_VALID";
+  }
+  
   $id_newest      = 0;
   $id_newest      = (int)$response_count["0"]["id"];
+  
   return $id_newest;
 }
 
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 
-function getData()
+function getData($var)
 {
   global $id,           $status,        $customer,   $email,
          $date_created, $date_modified, $products,   $shipping,
@@ -121,8 +156,9 @@ function getData()
          $yes_list,
          $to_credit;
          
+  $id  = (string)$var;
   $url = "";
-  $url_order_info      = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/orders/'.$id;
+  $url_order_info = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/orders/'.$id;
   
   $ch = curl_init();
   
@@ -136,9 +172,33 @@ function getData()
     CURLOPT_FAILONERROR     => true
   ));
   
-  $response_info      = curl_exec($ch);
+  $response_info = curl_exec($ch);
+
+  if (curl_exec($ch) === false)
+  {
+    $curl_error    = curl_error($ch);
+    $function_name = __FUNCTION__;
+    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    return    "CURL_ERROR";
+  }
+
+  if (!$response_info || strlen(trim($response_info)) == 0)
+  {
+    return "REPLY_CONTENT_NULL";
+  }
+  
   $json_response_info = json_decode($response_info, true);
-  $customer           = (string)$json_response_info['customer_id'];
+  
+  if ($response_info === false)
+  {
+    $function_name = __FUNCTION__;
+    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    return    "REPLY_CONTENT_NOT_VALID";
+  }
+    
+  $customer = (string)$json_response_info['customer_id'];
+
+# -------------------------------------------------------------------------------------------
   
   $url_order_customers = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/customers/'.$customer;
   $url = $url_order_customers;
@@ -152,6 +212,30 @@ function getData()
   ));
   
   $response_customer = curl_exec($ch);
+  
+  if (curl_exec($ch) === false)
+  {
+    $curl_error    = curl_error($ch);
+    $function_name = __FUNCTION__;
+    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    return    "CURL_ERROR";
+  }
+
+  if (!$response_customer || strlen(trim($response_customer)) == 0)
+  {
+    return "REPLY_CONTENT_NULL";
+  }
+  
+  $json_response_customer = json_decode($response_customer, true);
+  
+  if ($response_customer === false)
+  {
+    $function_name = __FUNCTION__;
+    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    return    "REPLY_CONTENT_NOT_VALID";
+  }
+
+# -------------------------------------------------------------------------------------------
 
   $url_order_products  = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/orders/'.$id.'/products';
   $url = $url_order_products;
@@ -165,15 +249,33 @@ function getData()
   ));
   
   $response_products = curl_exec($ch);
-
-  if(curl_exec($ch) === false) {
-    echo "< CURL ERROR: " . curl_error($ch) . " >" . "\n";
-    return "not_exist";
+ 
+  if (curl_exec($ch) === false)
+  {
+    $curl_error    = curl_error($ch);
+    $function_name = __FUNCTION__;
+    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    return    "CURL_ERROR";
   }
-  curl_close($ch);
 
-  $json_response_customer  = json_decode($response_customer, true);
-  $json_response_products  = json_decode($response_products, true);
+  if (!$response_products || strlen(trim($response_products)) == 0)
+  {
+    return "REPLY_CONTENT_NULL";
+  }
+  
+  $json_response_products = json_decode($response_products, true);
+  
+  if ($response_products === false)
+  {
+    $function_name = __FUNCTION__;
+    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    return    "REPLY_CONTENT_NOT_VALID";
+  }
+
+  curl_close($ch);
+  
+# -------------------------------------------------------------------------------------------
+
   $id            = (int)$json_response_info['id'];
   $status        = (string)strtolower($json_response_info['custom_status']);
   $customer      = (string)$json_response_info['customer_id'];
@@ -183,6 +285,11 @@ function getData()
   $products      = (int)currencyInteger($json_response_info['subtotal_ex_tax']);
   $shipping      = (int)currencyInteger($json_response_info['shipping_cost_ex_tax']);
   $tax	         = (int)currencyInteger($json_response_info['total_tax']);
+  
+  if ($id == 0)
+  {
+    return "ORDER_ID_INVALID";
+  }
   
   $credit_qty  = 0; #Default value
   $credit_ppu  = 0; #Default value
@@ -211,8 +318,11 @@ function getData()
       }
     }
   }
+  
+  return "READY";
 }
 
+# -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 
@@ -244,6 +354,7 @@ function printOutput()
 
 # -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 
 function connectDB()
 {
@@ -254,9 +365,8 @@ function connectDB()
          $database,     $username,      $password,   $pdo_options, $table;
   try
   {
-    $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database;charset=utf8", $username, $password, $pdo_options);
-    
-    echo "< CONNECTED SUCCESSFULLY >" . "\n";
+    $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database;charset=utf8",
+                     $username, $password, $pdo_options);
     
     $stmt = $conn->prepare(
       
@@ -329,12 +439,16 @@ function connectDB()
   }
   
   catch(PDOException $e) {
-    echo "< CONNECTION FAILED! >" . $e->getMessage() . "\n";
+    $pdo_error = $e->getMessage();
+    error_log("CONNECTION FAILED: $pdo_error", 3, "error.log");
+    echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
   }
   
   $conn = null;
 }
 
+# -------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------
 
 ?>

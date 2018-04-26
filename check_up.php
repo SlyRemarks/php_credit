@@ -2,18 +2,13 @@
 
 <?php
 
-#  This script is designed to be run by cron.
-#  It updates the database to a set schedule,
-#  ensuring records are updated should the webhook
-#  method fail.
+// RUN BY CRON; UPDATEs RECORDS IF WEBHOOK METHOD (index.php) FAILS:
 
 require_once("assets/config.php");
 require_once("php_credit_lib.php");
 
 date_default_timezone_set("Europe/London");
 $date_now = date(DateTime::RFC2822);
-
-echo "< DATE NOW: >".$date_now."\n";
 
 #---------------------------------------------------------------------------------------------------------------------
 #-- Get Most Recently Updated Record from Local Database -------------------------------------------------------------

@@ -13,7 +13,8 @@ function maxmodifiedDB()
   try
   {
     $conn = new PDO("mysql:host=$servername;
-                     port=$port;dbname=$database",
+                     port=$port;
+                     dbname=$database",
                      $username,
                      $password,
                      $pdo_options);
@@ -270,7 +271,8 @@ function getData($var)
 
 # -------------------------------------------------------------------------------------------
 
-  $url_order_products  = 'https://api.bigcommerce.com/stores/'.$shop_hash.'/v2/orders/'.$id.'/products';
+  $url_order_products  = 'https://api.bigcommerce.com/stores/' . $shop_hash .
+                         '/v2/orders/'.$id.'/products';
   $url = $url_order_products;
   
   curl_setopt_array($ch, array
@@ -336,8 +338,13 @@ function getData($var)
     }
   }
   
-  $creditable    = (int)($products - $credit_cost);
-  $to_credit     = (($creditable / 100) * $credit_pct);
+  $creditable = (int)($products - $credit_cost);
+  $to_credit  = (($creditable / 100) * $credit_pct);
+  
+  if ($credit_qty != 0)
+  {
+    $credit_qty = $credit_qty * 100;
+  }
   
   foreach($no_list as $no_issue) {
     if ($no_issue === $status) {
@@ -346,7 +353,9 @@ function getData($var)
     else {
       foreach($yes_list as $yes_issue) {
         if ($yes_issue === $status) {
-          $credit_issued = (int)ceil($to_credit / 100) + $credit_qty;
+          $credit_issued = $to_credit + $credit_qty;
+          $credit_issued = ceil($credit_issued);
+          $credit_issued = (int)$credit_issued;
         }
       }
     }
@@ -365,7 +374,7 @@ function connectDB()
          $date_created, $date_modified, $products,   $shipping,
          $tax,          $credit_qty,    $credit_ppu, $creditable,
          $credit_pct,   $credit_issued, $servername, $port,
-         $database,     $username,      $password,   $pdo_options, $table;
+         $database,     $username,      $password,   $pdo_options;
   try
   {
     $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database;charset=utf8",
@@ -373,7 +382,7 @@ function connectDB()
     
     $stmt = $conn->prepare(
       
-    "INSERT INTO $table (
+    "INSERT INTO orders (
       id,  status,
       customer,
       email,
@@ -458,8 +467,7 @@ function getEntry($val)
 {
   global $servername, $port,
          $database,   $username,
-         $password,   $pdo_options,
-         $table;
+         $password,   $pdo_options;
          
   $id = $val;
   
@@ -472,7 +480,7 @@ function getEntry($val)
                      $password,
                      $pdo_options);
                      
-    $request = $conn->prepare("SELECT * FROM $table WHERE ID=:id");
+    $request = $conn->prepare("SELECT * FROM orders WHERE ID=:id");
     $request->bindParam(':id', $id, PDO::PARAM_STR);
     $request->execute();
     $result  = $request->fetch(PDO::FETCH_ASSOC);

@@ -32,7 +32,9 @@ if (isset($headers_req))
     }
     else
     {
-      error_log("WEBHOOK EMPTY BODY", 3, "error.log");
+      $filename = __FILE__;
+      $line     = __LINE__;
+      error_log("WEBHOOK EMPTY BODY, $filename, $line", 3, "error.log");
     }
   }
 }

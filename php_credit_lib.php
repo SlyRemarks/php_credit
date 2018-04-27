@@ -26,12 +26,19 @@ function maxmodifiedDB()
   
   catch(PDOException $e)
   {
-    error_log("CONNECTION FAILED: $function_name", 3, "error.log");
-    echo "CONNECTION FAILED! " . $e->getMessage() . "\n";
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $pdo_error = $e->getMessage();
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
+    echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
     return "FAILED";
   }
  
   $conn = null;
+  
+  return $result;
 }
 
 # -------------------------------------------------------------------------------------------
@@ -57,9 +64,12 @@ function getBatch()
 
   if (curl_exec($request) === false)
   {
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
     $curl_error    = curl_error($request);
-    $function_name = __FUNCTION__;
-    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
     return    "CURL_ERROR";
   }
 
@@ -74,8 +84,11 @@ function getBatch()
   
   if ($response_info === false)
   {
-    $function_name = __FUNCTION__;
-    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
   
@@ -92,13 +105,13 @@ function queryBuild()
          $min_date_modified,
          $date_now,
          $limit,
-         $page;
+         $page,
+         $last_updated;
   
-  $min_date_modified = $result['latest_record'];
-  $min_date_modified = date(DATE_RFC2822, $min_date_modified);
+  $min_date_modified = $last_updated;
 
   $query = http_build_query([
-   'min_date_modified' => (string)$min_date_modified,
+   'min_date_modified' => (string)$last_updated,
    'max_date_modified' => (string)$date_now,
    "limit"             => (string)$limit,
    "page"              => (string)$page,
@@ -150,9 +163,12 @@ function getLatest()
   
   if (curl_exec($request) === false)
   {
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
     $curl_error    = curl_error($request);
-    $function_name = __FUNCTION__;
-    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
     return "CURL_ERROR";
   }
 
@@ -165,8 +181,11 @@ function getLatest()
   
   if ($response_count === false)
   {
-    $function_name = __FUNCTION__;
-    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
     return "REPLY_CONTENT_NOT_VALID";
   }
   
@@ -210,9 +229,12 @@ function getData($var)
 
   if (curl_exec($ch) === false)
   {
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
     $curl_error    = curl_error($ch);
-    $function_name = __FUNCTION__;
-    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
     return    "CURL_ERROR";
   }
 
@@ -225,8 +247,11 @@ function getData($var)
   
   if ($response_info === false)
   {
-    $function_name = __FUNCTION__;
-    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
     
@@ -249,9 +274,12 @@ function getData($var)
   
   if (curl_exec($ch) === false)
   {
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
     $curl_error    = curl_error($ch);
-    $function_name = __FUNCTION__;
-    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
     return    "CURL_ERROR";
   }
 
@@ -264,8 +292,11 @@ function getData($var)
   
   if ($response_customer === false)
   {
-    $function_name = __FUNCTION__;
-    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
 
@@ -287,9 +318,12 @@ function getData($var)
  
   if (curl_exec($ch) === false)
   {
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
     $curl_error    = curl_error($ch);
-    $function_name = __FUNCTION__;
-    error_log("CURL ERROR: $curl_error, $function_name \n", 3, "error.log");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
     return    "CURL_ERROR";
   }
 
@@ -302,8 +336,11 @@ function getData($var)
   
   if ($response_products === false)
   {
-    $function_name = __FUNCTION__;
-    error_log("REPLY CONTENT NOT VALID: $function_name", 3, "error.log");
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
 
@@ -451,8 +488,12 @@ function connectDB()
   }
   
   catch(PDOException $e) {
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
     $pdo_error = $e->getMessage();
-    error_log("CONNECTION FAILED: $pdo_error", 3, "error.log");
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
     echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
   }
   
@@ -488,8 +529,13 @@ function getEntry($val)
   
   catch(PDOException $e)
   {
-    error_log("CONNECTION FAILED: $function_name", 3, "error.log");
-    echo "CONNECTION FAILED! " . $e->getMessage() . "\n";
+    $date = new DateTime();
+    $date = $date->format("y:m:d h:i:s");
+    $pdo_error = $e->getMessage();
+    $filename = __FILE__;
+    $line     = __LINE__;
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
+    echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
     return "FAILED";
   }
   

@@ -15,14 +15,7 @@ require_once("php_credit_lib.php");
 date_default_timezone_set("Europe/London");
 $date_now = date(DateTime::RFC2822);
 
-$maxmodified_db = maxmodifiedDB();
-
-echo $maxmodified_db;
-
-if ($maxmodified_db === "FAILED")
-{
-  die;
-}
+$last_updated = date(DATE_RFC2822, 1);
 
 echo "DATE NOW: " . $date_now . "\n";
 
@@ -75,8 +68,8 @@ echo "RETRIEVING RECORDS...\n";
 
 #--------------------------------------------------------------------------------------------------------------------
 
-$orders_undone = array();
-$counting = 0;
+$orders_undone   = array();
+$counting_orders = 0;
 
 foreach ($list_array as $value)
 {
@@ -90,11 +83,18 @@ foreach ($orders_undone as $order)
 {
   $id       = (string)$order;
   $get_data = getData($id);
+  $counting_orders = $counting_orders++;
+  if(++$counting_orders === count($orders_undone)) {
+    echo $date_modified;
+  }
   if ($get_data === "READY")
   {
     connectDB();
   }
 }
+
+#--------------------------------------------------------------------------------------------------------------------
+
 
 echo "UPDATE COMPLETE\n";
 

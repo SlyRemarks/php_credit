@@ -2,8 +2,9 @@
 
 <?php
 
-// RUN BY CRON; UPDATES RECORDS IF WEBHOOK METHOD (index.php) FAILS:
-// SYMLINK LOCATION: /etc/cron.hourly
+// RUN BY CRON; UPDATES DATABASE BY THE TIMESTAMP OF THE LAST MODIFIED
+// ENTRY IN THE LATEST UPDATE;
+// TO RUN ALONG-SIDE THE WEBHOOK METHOD (index.php);
 
 require_once("assets/config.php");
 require_once("php_credit_lib.php");
@@ -94,11 +95,7 @@ foreach ($orders_undone as $order)
   }
 }
 
-echo $date_of_last."\n";
 lastupdateDB();
-
-#--------------------------------------------------------------------------------------------------------------------
-
 
 echo "UPDATE COMPLETE\n";
 

@@ -31,7 +31,7 @@ function maxmodifiedDB()
     $pdo_error = $e->getMessage();
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
     return "FAILED";
   }
@@ -76,7 +76,7 @@ function getBatch()
     $curl_error    = curl_error($request);
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "CURL_ERROR";
   }
 
@@ -95,7 +95,7 @@ function getBatch()
     $date = $date->format("y:m:d h:i:s");
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
   
@@ -175,7 +175,7 @@ function getLatest()
     $curl_error    = curl_error($request);
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return "CURL_ERROR";
   }
 
@@ -192,7 +192,7 @@ function getLatest()
     $date = $date->format("y:m:d h:i:s");
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return "REPLY_CONTENT_NOT_VALID";
   }
   
@@ -241,7 +241,7 @@ function getData($var)
     $curl_error    = curl_error($ch);
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "CURL_ERROR";
   }
 
@@ -258,7 +258,7 @@ function getData($var)
     $date = $date->format("y:m:d h:i:s");
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
     
@@ -286,7 +286,7 @@ function getData($var)
     $curl_error    = curl_error($ch);
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "CURL_ERROR";
   }
 
@@ -303,7 +303,7 @@ function getData($var)
     $date = $date->format("y:m:d h:i:s");
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
 
@@ -330,7 +330,7 @@ function getData($var)
     $curl_error    = curl_error($ch);
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "CURL_ERROR";
   }
 
@@ -347,7 +347,7 @@ function getData($var)
     $date = $date->format("y:m:d h:i:s");
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "error.log");
+    error_log("REPLY CONTENT NOT VALID: $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     return    "REPLY_CONTENT_NOT_VALID";
   }
 
@@ -500,7 +500,7 @@ function connectDB()
     $pdo_error = $e->getMessage();
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
   }
   
@@ -541,7 +541,7 @@ function getEntry($val)
     $pdo_error = $e->getMessage();
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
     return "FAILED";
   }
@@ -617,7 +617,7 @@ function lastupdateDB()
 
     $stmt->execute();
   
-    echo "UPDATING DATABASE WITH TIMESTAMP OF UPDATE" . "\n";
+    echo "UPDATING DATABASE WITH TIMESTAMP OF UPDATE..." . "\n";
   }
   
   catch(PDOException $e) {
@@ -626,7 +626,7 @@ function lastupdateDB()
     $pdo_error = $e->getMessage();
     $filename = __FILE__;
     $line     = __LINE__;
-    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "error.log");
+    error_log("CONNECTION FAILED: $pdo_error \n $filename \n $line \n $date \n", 3, "/var/log/php_credit/error.log");
     echo      "CONNECTION FAILED: " . $e->getMessage() . "\n";
   }
   

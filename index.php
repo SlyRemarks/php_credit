@@ -27,6 +27,8 @@ if (isset($headers_req))
         if ($get_data === "READY")
         {
          connectDB();
+         $date_now = date(DateTime::RFC2822);
+         error_log("WEBHOOK RECEIVED! $date_now \n", 3, "/var/log/php_credit/check_up.log");
         }
       }
     }
@@ -34,9 +36,11 @@ if (isset($headers_req))
     {
       $filename = __FILE__;
       $line     = __LINE__;
-      error_log("WEBHOOK EMPTY BODY, $filename, $line", 3, "error.log");
+      error_log("WEBHOOK EMPTY BODY, $filename, $line", 3, "/var/log/php_credit/error.log");
     }
   }
 }
+
+
 
 ?>

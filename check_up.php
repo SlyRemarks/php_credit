@@ -15,8 +15,7 @@ require_once("php_credit_lib.php");
 date_default_timezone_set("Europe/London");
 
 $lastrec_DB   = maxmodifiedDB();
-//$lastrec_DB   = 1524565980;
-
+$lastrec_DB   = $lastrec_DB["latest_record"];
 $date_now     = date(DateTime::RFC2822);
 $last_updated = date(DATE_RFC2822, $lastrec_DB);
 

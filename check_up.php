@@ -98,7 +98,7 @@ foreach ($orders_undone as $order)
   }
   if ($get_data === "READY")
   {
-    connectDB();                                          # Enter results in the DB.
+    connectDB();                                          # Enter results in DB.
   }
 }
 

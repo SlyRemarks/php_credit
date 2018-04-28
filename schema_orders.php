@@ -1,16 +1,10 @@
 <?php
 
-// UPDATE SCHEMA FOR TABLE IN DATABASE:
+// UPDATE SCHEMA FOR TABLE 'ORDERS' IN DATABASE:
 
 /*
 
-#---------------------------------------------------------------------------------------------------------------------
-#-- Include Config File ----------------------------------------------------------------------------------------------
-
 require_once("assets/config.php");
-
-#---------------------------------------------------------------------------------------------------------------------
-#-- HTTP Request -----------------------------------------------------------------------------------------------------
 
 try {
   $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database", $username, $password, $pdo_options);
@@ -18,8 +12,8 @@ try {
   echo "< CONNECTED SUCCESSFULLY >" . "\n";
 
   $sql =
-    "DROP TABLE IF EXISTS $table;
-    CREATE TABLE $table (
+    "DROP TABLE IF EXISTS orders;
+    CREATE TABLE orders (
     id INT(10) UNSIGNED PRIMARY KEY,
     status VARCHAR(50),
     customer VARCHAR(10),
@@ -37,7 +31,7 @@ try {
     )";
   
   $conn->exec($sql);
-  echo "Table [$table] created successfully" . "\n";
+  echo "Table 'orders' created successfully" . "\n";
 }
     
 catch(PDOException $e) {

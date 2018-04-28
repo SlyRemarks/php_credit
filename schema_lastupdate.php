@@ -1,10 +1,8 @@
 <?php
 
-// UPDATE SCHEMA FOR TABLE IN DATABASE:
+// UPDATE SCHEMA FOR TABLE 'LASTUPDATE' IN DATABASE:
 
 /*
-#---------------------------------------------------------------------------------------------------------------------
-#-- Include Config File ----------------------------------------------------------------------------------------------
 
 require_once("assets/config.php");
 
@@ -32,5 +30,7 @@ catch(PDOException $e)
 }
 
 $conn = null;
+
 */
+
 ?>

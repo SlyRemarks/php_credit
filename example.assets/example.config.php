@@ -1,7 +1,5 @@
 <?php
 
-#-------------------------------------------------------
-
 $servername  = "xxxxxxxxxx";
 $username    = "xxxxxxxxxx";
 $password    = "xxxxxxxxxx";
@@ -15,13 +13,11 @@ $pdo_options = [
 
 #-------------------------------------------------------
 
-$client     = "xxxxxxxxxx";
-$token      = "xxxxxxxxxx";
 $shop_hash  = "xxxxxxxxxx";
 $access_key = "xxxxxxxxxx";
 $headers    = array(
-  "X-Auth-Client:" . $client,
-  "X-Auth-Token:"  . $token,
+  "X-Auth-Client:" . "xxxxxxxxxx",
+  "X-Auth-Token:"  . "xxxxxxxxxx",
   "Accept:application/json",
   "Content-Type:application/json"
 );
@@ -57,9 +53,5 @@ $yes_list =  array(
   "xxxxxxxxxx",
   "xxxxxxxxxx",
 );
-
-#-------------------------------------------------------
-
-$prompt_pd = "xxxxxxxxxx";
 
 ?>

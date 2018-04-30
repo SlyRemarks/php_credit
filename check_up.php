@@ -30,7 +30,7 @@ $return_value = 0;
 
 while ($return_value == 0)
 {
-  sleep(1);
+  sleep(5);
   $record_count = 0;
   $query        = queryBuild();                           # Construct the GET request for the BigCommerce API.
   $batch_reply  = getBatch();                             # Calling the BigCommerce API: return orders by filters set in query.

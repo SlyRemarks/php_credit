@@ -289,70 +289,79 @@ function getData($var)
                                         ORDER: $id \n",
                                         3,
                                         "/var/log/php_credit/error.log");
+                                        
     return    "REPLY_CONTENT_NOT_VALID";
   }
     
   $customer = (string)$json_response_info['customer_id'];
 
 # -------------------------------------------------------------------------------------------
-  
-  $url_order_customers = 'https://api.bigcommerce.com/stores/'.
-                         $shop_hash.'/v2/customers/'.$customer;
-  $url = $url_order_customers;
-  
-    curl_setopt_array($ch, array
-  (
-    CURLOPT_HTTPHEADER      => $headers,
-    CURLOPT_URL             => $url,
-    CURLOPT_RETURNTRANSFER  => true,
-    CURLOPT_FAILONERROR     => true
-  ));
-  
-  $response_customer = curl_exec($ch);
-  
-  if (curl_exec($ch) === false)
-  {
-    $date = new DateTime();
-    $date = $date->format("y:m:d h:i:s");
-    $curl_error    = curl_error($ch);
-    $filename = __FILE__;
-    $line     = __LINE__;
-    error_log("CURL ERROR: $curl_error \n
-                           $filename \n
-                           $line \n
-                           $date \n
-                           ORDER: $id \n",
-                           3,
-                           "/var/log/php_credit/error.log");
-    return    "CURL_ERROR";
-  }
 
-  if (!$response_customer || strlen(trim($response_customer)) == 0)
+  if ($customer !== "0")
   {
-    return "REPLY_CONTENT_NULL";
+    $url_order_customers = 'https://api.bigcommerce.com/stores/'. $shop_hash.'/v2/customers/'.$customer;
+                           
+    $url = $url_order_customers;
+    
+    curl_setopt_array($ch, array(
+      CURLOPT_HTTPHEADER      => $headers,
+      CURLOPT_URL             => $url,
+      CURLOPT_RETURNTRANSFER  => true,
+      CURLOPT_FAILONERROR     => true
+    ));
+    
+    $response_customer = curl_exec($ch);
+  
+    if (curl_exec($ch) === false)
+    {
+      $date = new DateTime();
+      $date = $date->format("y:m:d h:i:s");
+      $curl_error    = curl_error($ch);
+      $filename = __FILE__;
+      $line     = __LINE__;
+      error_log("CURL ERROR: $curl_error \n $filename \n $line \n $date \n
+                ORDER: $id \n", 3, "/var/log/php_credit/error.log");
+                             
+      return    "CURL_ERROR";
+    }
+  
+    if (!$response_customer || strlen(trim($response_customer)) == 0)
+    {
+      return "REPLY_CONTENT_NULL";
+    }
+    
+    $json_response_customer = json_decode($response_customer, true);
+    
+    if ($response_customer === false)
+    {
+      $date = new DateTime();
+      $date = $date->format("y:m:d h:i:s");
+      $filename = __FILE__;
+      $line     = __LINE__;
+      error_log("REPLY CONTENT NOT VALID: $filename \n
+                                          $line \n
+                                          $date \n
+                                          ORDER: $id \n",
+                                          3,
+                                          "/var/log/php_credit/error.log");
+                                          
+      return    "REPLY_CONTENT_NOT_VALID";
+    }
+    
+    $email         = (string)$json_response_customer['email'];
   }
   
-  $json_response_customer = json_decode($response_customer, true);
-  
-  if ($response_customer === false)
+  else
   {
-    $date = new DateTime();
-    $date = $date->format("y:m:d h:i:s");
-    $filename = __FILE__;
-    $line     = __LINE__;
-    error_log("REPLY CONTENT NOT VALID: $filename \n
-                                        $line \n
-                                        $date \n
-                                        ORDER: $id \n",
-                                        3,
-                                        "/var/log/php_credit/error.log");
-    return    "REPLY_CONTENT_NOT_VALID";
+    $customer      = "0";
+    $email         = (string)$json_response_info['billing_address']['email'];
   }
 
 # -------------------------------------------------------------------------------------------
 
   $url_order_products  = 'https://api.bigcommerce.com/stores/' . $shop_hash .
                          '/v2/orders/'.$id.'/products';
+                         
   $url = $url_order_products;
   
   curl_setopt_array($ch, array
@@ -410,8 +419,6 @@ function getData($var)
 
   $id            = (int)$json_response_info['id'];
   $status        = (string)strtolower($json_response_info['custom_status']);
-  $customer      = (string)$json_response_info['customer_id'];
-  $email         = (string)$json_response_customer['email'];
   $date_created  = (int)strtotime($json_response_info['date_created']);
   $date_modified = (int)strtotime($json_response_info['date_modified']);
   $products      = (int)currencyInteger($json_response_info['subtotal_ex_tax']);

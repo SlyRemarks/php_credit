@@ -2,7 +2,7 @@
 
 // RECEIVE AND PROCESS WEBHOOK:
 
-require_once("assets/config.php");
+require_once("assets/php_credit_config.php");
 require_once("php_credit_lib.php");
 
 # -----------------------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,7 @@ $headers_req = apache_request_headers();
 
 if (isset($headers_req))
 {
-  if ($headers_req["accesskey"] === $access_key)              # Access key is an option when setting the webhook;
+  if (CreditConfig::$access_key === $access_key)              # Access key is an option when setting the webhook;
   {                                                           # it provides authentication.
     $body = file_get_contents('php://input');
     if ($body && $body != "")

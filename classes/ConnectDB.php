@@ -5,12 +5,17 @@ class ConnectDB {
     global $id,           $status,        $customer,   $email,
            $date_created, $date_modified, $products,   $shipping,
            $tax,          $credit_qty,    $credit_ppu, $creditable,
-           $credit_pct,   $credit_issued, $servername, $port,
-           $database,     $username,      $password,   $pdo_options;
+           $credit_pct,   $credit_issued;
     try
     {
-      $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database;charset=utf8",
-                       $username, $password, $pdo_options);
+      $conn = new PDO("mysql:host=" . CreditConfig::servername . ";" .
+                      "port="       . CreditConfig::port . ";" .
+                      "dbname="     . CreditConfig::database . ";" .
+                      "charset=utf8",
+                       CreditConfig::username,
+                       CreditConfig::password,
+                       CreditConfig::pdo_options
+      );
       
       $stmt = $conn->prepare(
         
@@ -86,18 +91,18 @@ class ConnectDB {
       $date = new DateTime();
       $date = $date->format("y:m:d h:i:s");
       $pdo_error = $e->getMessage();
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("CONNECTION FAILED: $pdo_error \n
-                                    $filename \n
-                                    $line \n
-                                    $date \n",
-                                    3,
-                                    "/var/log/php_credit/error.log");
-      echo "CONNECTION FAILED: " . $e->getMessage() . "\n";
+# -----------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "WEBHOOK EMPTY BODY," . __FILE__ . "," . __LINE__, 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
+      echo "CONNECTION FAILED: " . $pdo_error . "\n";
     }
     
     $conn = null;
   }
 }
+
 ?>

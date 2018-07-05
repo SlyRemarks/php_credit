@@ -9,14 +9,14 @@
 ###############################################################################################################################
 ###############################################################################################################################
 
-require_once("../assets/php_credit_config.php");             # Load config file
+require_once("../assets/php_credit_config.php");          # Load config file
 
 # -----------------------------------------------------------------------------------------------------------------------------
 
 spl_autoload_register('autoLdr');                         # Load classes
 
 function autoLdr($class) {
-  $path = 'classes/';
+  $path = '../classes/';
   require_once $path.$class.'.php';
 }
 
@@ -116,7 +116,7 @@ foreach ($orders_undone as $order)
   }
 }
 
-(new LastUpdateDB)->lastupdateDB();                       # Store 'date modified' timestamp of last order to DB.
+$lastupdateDB = (new LastUpdateDB)->lastupdateDB();       # Store 'date modified' timestamp of last order to DB.
 
 echo "UPDATE COMPLETE\n";
 

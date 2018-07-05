@@ -1,19 +1,27 @@
 <?php
 class CurrencyInteger {
-  function currencyInteger($var)
+  
+  private $num = 0;
+  
+  public function __construct($num)
   {
-    if ($var === false)
+    $this->num = $num;
+  }
+  
+  function currencyInteger($num)
+  {
+    if ($num === false)
     {
       return 0;
     }
-    $var = (float)$var;
-    if ($var == 0)
+    $num = (float)$num;
+    if ($num == 0)
     {
       return 0;
     }
-    $var = $var * 100;
-    $var = (int)$var;
-    return $var;
+    $num = $num * 100;
+    $num = (int)$num;
+    return $num;
   }
 }
 ?>

@@ -1,7 +1,11 @@
 <?php
-class MaxModifiedDB {
-  function maxmodifiedDB() {
-    try {
+
+class MaxModifiedDB
+{
+  function maxmodifiedDB()
+  {
+    try
+    {
       $conn = new PDO("mysql:host=" . CreditConfig::servername . ";
                        port="       . CreditConfig::port . ";
                        dbname="     . CreditConfig::database,
@@ -15,7 +19,8 @@ class MaxModifiedDB {
       $result  = $request->fetch(PDO::FETCH_ASSOC);
     }
     
-    catch(PDOException $e) {
+    catch(PDOException $e)
+    {
       $date      = new DateTime();
       $date      = $date->format("y:m:d h:i:s");
       $pdo_error = $e->getMessage();
@@ -24,7 +29,7 @@ class MaxModifiedDB {
       error_log("CONNECTION FAILED: $pdo_error $filename $line $date", 3,
                                     "/var/log/php_credit/error.log");
      
-      echo "CONNECTION FAILED: " . $e->getMessage() . "\n";
+      echo "CONNECTION FAILED: " . $pdo_error . "\n";
       return false;
     }
    
@@ -38,4 +43,5 @@ class MaxModifiedDB {
     }
   }
 }
+
 ?>

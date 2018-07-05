@@ -1,16 +1,13 @@
 <?php
 class GetLatest {
- function getLatest()
+  function getLatest()
   {
-    global $shop_hash,
-           $headers;
-           
     $request = curl_init();
       
-    $url_order_count = "https://api.bigcommerce.com/stores/$shop_hash/" .
+    $url_order_count = "https://api.bigcommerce.com/stores/" . CreditConfig::shop_hash . "/" .
                        "v2/orders/?sort=date_created:desc&limit=1";
     
-    curl_setopt($request, CURLOPT_HTTPHEADER    , $headers);
+    curl_setopt($request, CURLOPT_HTTPHEADER    , CreditConfig::headers);
     curl_setopt($request, CURLOPT_URL           , $url_order_count);
     curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($request, CURLOPT_FAILONERROR   , true);
@@ -21,15 +18,14 @@ class GetLatest {
     {
       $date = new DateTime();
       $date = $date->format("y:m:d h:i:s");
-      $curl_error    = curl_error($request);
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("CURL ERROR: $curl_error \n
-                             $filename \n
-                             $line \n
-                             $date \n",
-                             3,
-                             "/var/log/php_credit/error.log");
+      $curl_error = curl_error($request);
+# -----------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "WEBHOOK EMPTY BODY," . __FILE__ . "," . __LINE__, 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
       return "CURL_ERROR";
     }
   
@@ -44,20 +40,21 @@ class GetLatest {
     {
       $date = new DateTime();
       $date = $date->format("y:m:d h:i:s");
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("REPLY CONTENT NOT VALID: $filename \n
-                                          $line \n
-                                          $date \n",
-                                          3,
-                                          "/var/log/php_credit/error.log");
+# ------------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "WEBHOOK EMPTY BODY," . __FILE__ . "," . __LINE__, 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
       return "REPLY_CONTENT_NOT_VALID";
     }
     
-    $id_newest      = 0;
-    $id_newest      = (int)$response_count["0"]["id"];
+    $id_newest = 0;
+    $id_newest = (int)$response_count["0"]["id"];
     
     return $id_newest;
   }
 }
+
 ?>

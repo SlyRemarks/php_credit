@@ -7,6 +7,7 @@
 // TO RUN ALONG-SIDE THE WEBHOOK METHOD (index.php);
 
 ###############################################################################################################################
+// Config...
 ###############################################################################################################################
 
 require_once("../assets/php_credit_config.php");          # Load config file
@@ -20,22 +21,20 @@ function autoLdr($class) {
   require_once $path.$class.'.php';
 }
 
-###############################################################################################################################
-###############################################################################################################################
-
-date_default_timezone_set("Europe/London");
-
-$lastrec_DB = (new MaxModifiedDB)->maxmodifiedDB();       # Get timestamp of last order in previous update, from DB.
-if ($lastrec_DB === false) {
-  $lastrec_DB = 1;                                        # Exception: default to oldest
-}
-else {
-  $lastrec_DB = $lastrec_DB["latest_record"];
-}
-$date_now     = date(DateTime::RFC2822);                  # Get current timestamp for BigCommerce API request parameters -
-$last_updated = date(DATE_RFC2822, $lastrec_DB);          # converted to required RFC2822 format.
-
 # -----------------------------------------------------------------------------------------------------------------------------
+
+date_default_timezone_set("Europe/London");               # Set timezone
+$date_now = date(DateTime::RFC2822);                      # Get current timestamp for BigCommerce API request parameters -
+
+###############################################################################################################################
+// Get Timestamp of Latest Update...
+###############################################################################################################################
+
+$last_updated = (new MaxModifiedDB)->maxmodifiedDB();     # Get timestamp of last order in previous update, from DB.
+
+###############################################################################################################################
+// Get Order ID Numbers...
+###############################################################################################################################
 
 echo "REQUESTING ORDER ID NUMBERS...\n";
                                                           
@@ -48,8 +47,10 @@ while ($return_value == 0)
 {
   sleep(2);
   $record_count = 0;
-  $query = (new QueryBuild)->queryBuild();
-  $batch_reply  = (new GetBatch)->getBatch;
+  $query = new QueryBuild($page, $limit,
+                          $last_updated, $date_now);
+  $query = $query->queryBuild();
+  $batch_reply  = (new GetBatch)->getBatch($query);
 
   if ($batch_reply === "REPLY_CONTENT_NULL")
   {
@@ -116,7 +117,8 @@ foreach ($orders_undone as $order)
   }
 }
 
-$lastupdateDB = (new LastUpdateDB)->lastupdateDB();       # Store 'date modified' timestamp of last order to DB.
+$lastupdateDB = new LastUpdateDB($date_modified);
+$lastupdateDB->lastupdateDB();                            # Store 'date modified' timestamp of last order to DB.
 
 echo "UPDATE COMPLETE\n";
 

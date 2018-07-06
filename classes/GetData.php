@@ -10,6 +10,7 @@ class GetData {
   
   protected function getData($id)
   {
+    $date = (new DateTime)->format("y:m:d h:i:s");
     $id  = (string)$id;
     $url = "";
     $url_order_info = 'https://api.bigcommerce.com/stores/'. CreditConfig::shop_hash .'/v2/orders/'.$id;
@@ -30,17 +31,15 @@ class GetData {
   
     if (curl_exec($ch) === false)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
       $curl_error = curl_error($ch);
-      
+# -----------------------------------------------------------------------------------------------------------------------------
       error_log
       (
-        "CURL ERROR: $curl_error" . __FILE__ . "," . __LINE__ . "," .
-         $date . "," . "ORDER: $id", 3,
+        "CURL ERROR: $curl_error" .
+        __FILE__ . "," . __LINE__ . "," . $date . "," . "ORDER: $id", 3,
         "/var/log/php_credit/error.log"
       );
-      
+# -----------------------------------------------------------------------------------------------------------------------------
       return "CURL_ERROR";
     }
   
@@ -53,32 +52,29 @@ class GetData {
     
     if ($response_info === false)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("REPLY CONTENT NOT VALID: $filename \n
-                                          $line \n
-                                          $date \n
-                                          ORDER: $id \n",
-                                          3,
-                                          "/var/log/php_credit/error.log");
-                                          
+# -----------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "REPLY CONTENT NOT VALID" .
+        __FILE__ . "," . __LINE__ . "," . $date . "," . "ORDER: $id", 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
       return    "REPLY_CONTENT_NOT_VALID";
     }
       
     $customer = (string)$json_response_info['customer_id'];
   
-  # -------------------------------------------------------------------------------------------
+###############################################################################################################################
   
     if ($customer !== "0")
     {
-      $url_order_customers = 'https://api.bigcommerce.com/stores/'. $shop_hash.'/v2/customers/'.$customer;
+      $url_order_customers = 'https://api.bigcommerce.com/stores/'. CreditConfig::shop_hash.'/v2/customers/'.$customer;
                              
       $url = $url_order_customers;
       
       curl_setopt_array($ch, array(
-        CURLOPT_HTTPHEADER      => $headers,
+        CURLOPT_HTTPHEADER      => CreditConfig::headers,
         CURLOPT_URL             => $url,
         CURLOPT_RETURNTRANSFER  => true,
         CURLOPT_FAILONERROR     => true
@@ -91,14 +87,14 @@ class GetData {
         $date = new DateTime();
         $date = $date->format("y:m:d h:i:s");
         $curl_error    = curl_error($ch);
-        
+# -----------------------------------------------------------------------------------------------------------------------------
         error_log
         (
           "CURL ERROR: $curl_error" . __FILE__ . "," . __LINE__ . "," .
            $date . "," . "ORDER: $id", 3,
           "/var/log/php_credit/error.log"
         );
-        
+# -----------------------------------------------------------------------------------------------------------------------------
         return "CURL_ERROR";
       }
     
@@ -111,39 +107,36 @@ class GetData {
       
       if ($response_customer === false)
       {
-        $date = new DateTime();
-        $date = $date->format("y:m:d h:i:s");
-        $filename = __FILE__;
-        $line     = __LINE__;
+# -----------------------------------------------------------------------------------------------------------------------------
         error_log
         (
-          "CURL ERROR: $curl_error" . __FILE__ . "," . __LINE__ . "," .
-           $date . "," . "ORDER: $id", 3,
+          "CURL ERROR: $curl_error" .
+          __FILE__ . "," . __LINE__ . "," . $date . "," . "ORDER: $id", 3,
           "/var/log/php_credit/error.log"
         );
-        
+# -----------------------------------------------------------------------------------------------------------------------------
         return "REPLY_CONTENT_NOT_VALID";
       }
       
-      $email         = (string)$json_response_customer['email'];
+      $email = (string)$json_response_customer['email'];
     }
     
     else
     {
-      $customer      = "0";
-      $email         = (string)$json_response_info['billing_address']['email'];
+      $customer = "0";
+      $email    = (string)$json_response_info['billing_address']['email'];
     }
   
-  # -------------------------------------------------------------------------------------------
+###############################################################################################################################
   
-    $url_order_products  = 'https://api.bigcommerce.com/stores/' . $shop_hash .
+    $url_order_products  = 'https://api.bigcommerce.com/stores/' . CreditConfig::shop_hash .
                            '/v2/orders/'.$id.'/products';
                            
     $url = $url_order_products;
     
     curl_setopt_array($ch, array
     (
-      CURLOPT_HTTPHEADER      => $headers,
+      CURLOPT_HTTPHEADER      => CreditConfig::headers,
       CURLOPT_URL             => $url,
       CURLOPT_RETURNTRANSFER  => true,
       CURLOPT_FAILONERROR     => true
@@ -153,17 +146,15 @@ class GetData {
    
     if (curl_exec($ch) === false)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
       $curl_error    = curl_error($ch);
-
+# -----------------------------------------------------------------------------------------------------------------------------
       error_log
       (
         "CURL ERROR: $curl_error" . __FILE__ . "," . __LINE__ . "," .
          $date . "," . "ORDER: $id", 3,
         "/var/log/php_credit/error.log"
       );
-      
+# -----------------------------------------------------------------------------------------------------------------------------
       return "CURL_ERROR";
     }
   
@@ -176,21 +167,20 @@ class GetData {
     
     if ($response_products === false)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
+# -----------------------------------------------------------------------------------------------------------------------------
       error_log
       (
-        "CURL ERROR: $curl_error" . __FILE__ . "," . __LINE__ . "," .
-         $date . "," . "ORDER: $id", 3,
+        "CURL ERROR: $curl_error" .
+        __FILE__ . "," . __LINE__ . "," .  $date . "," . "ORDER: $id", 3,
         "/var/log/php_credit/error.log"
       );
-      
+# -----------------------------------------------------------------------------------------------------------------------------
       return "REPLY_CONTENT_NOT_VALID";
     }
   
     curl_close($ch);
     
-  # -------------------------------------------------------------------------------------------
+###############################################################################################################################
   
     $id            = (int)$json_response_info['id'];
     $status        = (string)strtolower($json_response_info['custom_status']);

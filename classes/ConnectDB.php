@@ -1,6 +1,6 @@
 <?php
 class ConnectDB {
-  function connectDB()
+  protected function connectDB()
   {
     global $id,           $status,        $customer,   $email,
            $date_created, $date_modified, $products,   $shipping,
@@ -94,7 +94,8 @@ class ConnectDB {
 # -----------------------------------------------------------------------------------------------------------------------------
       error_log
       (
-        "WEBHOOK EMPTY BODY," . __FILE__ . "," . __LINE__, 3,
+        "WEBHOOK EMPTY BODY," .
+        __FILE__ . "," . __LINE__, 3,
         "/var/log/php_credit/error.log"
       );
 # -----------------------------------------------------------------------------------------------------------------------------

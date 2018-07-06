@@ -1,15 +1,29 @@
 <?php
 
 class LastUpdateDB {
-  function lastupdateDB()
+  
+  private $date_modified;
+  
+  public function __construct($date_modified)
   {
-    global $date_modified, $servername, $port,
-           $database,     $username,      $password,   $pdo_options;
-           
+    $this->date_modified = $date_modified;
+  }
+  
+  protected function lastupdateDB()
+  {
+    $date_modified = $this->date_modified;
+    $date = (new DateTime)->format("y:m:d h:i:s");
+
     try
     {
-      $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database;charset=utf8",
-                       $username, $password, $pdo_options);
+      $conn = new PDO("mysql:host=" . CreditConfig::servername . ";" .
+                      "port="       . CreditConfig::port . ";" .
+                      "dbname="     . CreditConfig::database . ";" .
+                      "charset=utf8",
+                       CreditConfig::username,
+                       CreditConfig::password,
+                       CreditConfig::pdo_options
+      );
       
       $stmt = $conn->prepare
       (
@@ -22,18 +36,17 @@ class LastUpdateDB {
       echo "UPDATING DATABASE WITH TIMESTAMP OF LAST RECORD..." . "\n";
     }
     
-    catch(PDOException $e) {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
+    catch(PDOException $e)
+    {
       $pdo_error = $e->getMessage();
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("CONNECTION FAILED: $pdo_error \n
-                                    $filename \n
-                                    $line \n
-                                    $date \n",
-                                    3,
-                                    "/var/log/php_credit/error.log");
+# -----------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "CONNECTION FAILED:" . $pdo_error .
+        __FILE__ . " ," . __LINE__ . " ," . $date, 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
       echo "CONNECTION FAILED: " . $pdo_error . "\n";
     }
     

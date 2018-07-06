@@ -1,21 +1,29 @@
 <?php
-class GetEntry {
-  function getEntry($val)
+
+class GetEntry
+{
+  private $id = 0;
+  
+  public function __construct($id)
   {
-    global $servername, $port,
-           $database,   $username,
-           $password,   $pdo_options;
-           
-    $id = $val;
+    $this->id = $id;
+  }
+  
+  function getEntry($id)
+  {
+    $id = (string)$id;
+    $date = (new DateTime)->format("y:m:d h:i:s");
     
     try
     {
-      $conn = new PDO("mysql:host=$servername;
-                       port=$port;
-                       dbname=$database",
-                       $username,
-                       $password,
-                       $pdo_options);
+      $conn = new PDO("mysql:host=" . CreditConfig::servername . ";" .
+                      "port="       . CreditConfig::port . ";" .
+                      "dbname="     . CreditConfig::database . ";" .
+                      "charset=utf8",
+                       CreditConfig::username,
+                       CreditConfig::password,
+                       CreditConfig::pdo_options
+      );
                        
       $request = $conn->prepare("SELECT * FROM orders WHERE ID=:id");
       $request->bindParam(':id', $id, PDO::PARAM_STR);
@@ -25,18 +33,15 @@ class GetEntry {
     
     catch(PDOException $e)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
       $pdo_error = $e->getMessage();
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("CONNECTION FAILED: $pdo_error \n
-                                    $filename \n
-                                    $line \n
-                                    $date \n",
-                                    3,
-                                    "/var/log/php_credit/error.log");
+      error_log
+      (
+        "$curl_error, " . __FILE__ . " ," . __LINE__ . " ," . $date, 3,
+        "/var/log/php_credit/error.log"
+      );
+                                    
       echo "CONNECTION FAILED: " . $e->getMessage() . "\n";
+      
       return "FAILED";
     }
     
@@ -62,6 +67,7 @@ class GetEntry {
     $creditable    = $result['creditable'];
     $credit_pct    = $result['credit_pct'];
     $credit_issued = $result['credit_issued'];
+    
     
     $mask = "%32.32s %-60.60s \n";
     echo("\n");

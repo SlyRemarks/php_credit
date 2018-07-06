@@ -1,15 +1,24 @@
 <?php
-class GetBatch {
-  function getBatch() {
-    global $shop_hash,
-           $query,
-           $headers;
-    
+
+class GetBatch
+{
+  private $query = array();
+  
+  public function __construct($query)
+  {
+    $this->query = $query;
+  }
+  function getBatch()
+  {
+    $query = $this->query;
+    $date = (new DateTime)->format("y:m:d h:i:s");
+
     $request = curl_init();
     
-    $url_order_info = "https://api.bigcommerce.com/stores/$shop_hash/v2/orders/?".$query;
+    $url_order_info = "https://api.bigcommerce.com/stores/" .
+                      CreditConfig::shop_hash . "/v2/orders/?" . $query;
     
-    curl_setopt($request, CURLOPT_HTTPHEADER    , $headers);
+    curl_setopt($request, CURLOPT_HTTPHEADER    , CreditConfig::headers);
     curl_setopt($request, CURLOPT_URL           , $url_order_info);
     curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($request, CURLOPT_FAILONERROR   , true);
@@ -18,17 +27,14 @@ class GetBatch {
   
     if (curl_exec($request) === false)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
-      $curl_error    = curl_error($request);
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("CURL ERROR: $curl_error \n
-                             $filename \n
-                             $line \n
-                             $date \n",
-                             3,
-                             "/var/log/php_credit/error.log");
+      $curl_error = curl_error($request);
+# -----------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "$curl_error, " . __FILE__ . " ," . __LINE__ . " ," . $date, 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
       return "CURL_ERROR";
     }
   
@@ -43,20 +49,18 @@ class GetBatch {
     
     if ($response_info === false)
     {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
-      $filename = __FILE__;
-      $line     = __LINE__;
-      error_log("REPLY CONTENT NOT VALID: $filename \n
-                                          $line \n
-                                          $date \n",
-                                          3,
-                                          "/var/log/php_credit/error.log");
-                                          
+# -----------------------------------------------------------------------------------------------------------------------------
+      error_log
+      (
+        "REPLY CONTENT NOT VALID, " . __FILE__ . " ," . __LINE__ . " ," . $date, 3,
+        "/var/log/php_credit/error.log"
+      );
+# -----------------------------------------------------------------------------------------------------------------------------
       return "REPLY_CONTENT_NOT_VALID";
     }
     
     return $response_info;
   }
 }
+
 ?>

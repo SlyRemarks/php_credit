@@ -1,4 +1,5 @@
 <?php
+
 class CurrencyInteger {
   
   private $num = 0;
@@ -24,4 +25,5 @@ class CurrencyInteger {
     return $num;
   }
 }
+
 ?>

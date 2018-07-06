@@ -31,6 +31,7 @@ $date_now = date(DateTime::RFC2822);                      # Get current timestam
 ###############################################################################################################################
 
 $last_updated = (new MaxModifiedDB)->maxmodifiedDB();     # Get timestamp of last order in previous update, from DB.
+$last_updated = "$last_updated";
 
 ###############################################################################################################################
 // Get Order ID Numbers...
@@ -45,16 +46,16 @@ $return_value = 0;
 
 while ($return_value == 0)
 {
-  sleep(2);
+  sleep(1);
   $record_count = 0;
   $query = new QueryBuild($page, $limit,
                           $last_updated, $date_now);
   $query = $query->queryBuild();
-  $batch_reply  = (new GetBatch)->getBatch($query);
+  $batch_reply  = (new GetBatch($query))->getBatch();
 
   if ($batch_reply === "REPLY_CONTENT_NULL")
   {
-    break 1;
+    break;
   }
   if ($batch_reply === "CURL_ERROR" ||
       $batch_reply === "REPLY_CONTENT_NOT_VALID")
@@ -78,10 +79,12 @@ while ($return_value == 0)
     {
       if ($record_count == 0)                             # If number of orders on page is not equal to the limit,
       {                                                   # append these orders to the array (if not 0) and break the loop.
-        break 2;
+        $return_value = 1;
+        break;
       }
       array_push($list_array, $batch_reply);
-      break 2;
+      $return_value = 1;
+      break;
     }
   }
 }
@@ -98,22 +101,25 @@ foreach ($list_array as $value)
 {
   foreach ($value as $value_b)
   {
+    echo $value_b['id'] . "\n";
     array_push($orders_undone, $value_b['id']);           # Get order ID numbers from the returned array.
   }
 }
 
 foreach ($orders_undone as $order)
 {
+  echo "$order \n";
   $id       = (string)$order;
-  $get_data = (new GetData)->getData($id);                # Call the BigCommerce API for order details.
+  $get_data = (new GetData($id))->getData();                # Call the BigCommerce API for order details.
   $counting_orders = $counting_orders++;
-  if(++$counting_orders === count($orders_undone))
+  if (++$counting_orders === count($orders_undone))
   {
     $date_of_last = $date_modified;                       # Get the 'date modified' timestamp of the last order in the update.
   }
-  if ($get_data === "READY")
+  if (!empty($get_data))
   {
-    (new ConnectDB)->connectDB();                         # Enter results in DB.
+    echo "TEST \n";
+    (new ConnectDB($get_data))->connectDB();              # Enter results in DB.
   }
 }
 

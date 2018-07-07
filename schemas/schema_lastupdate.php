@@ -2,13 +2,20 @@
 
 // UPDATE SCHEMA FOR TABLE 'LASTUPDATE' IN DATABASE:
 
-/*
-
-require_once("assets/config.php");
+require_once("../assets/php_credit_config.php");
 
 try
 {
-  $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database", $username, $password, $pdo_options);
+  $conn = new PDO
+  (
+    "mysql:host=" . CreditConfig::servername . ";" .
+                  "port="       . CreditConfig::port . ";" .
+                  "dbname="     . CreditConfig::database . ";" .
+                  "charset=utf8",
+                   CreditConfig::username,
+                   CreditConfig::password,
+                   CreditConfig::pdo_options
+  );
 
   echo "< CONNECTED SUCCESSFULLY >" . "\n";
 
@@ -30,7 +37,5 @@ catch(PDOException $e)
 }
 
 $conn = null;
-
-*/
 
 ?>

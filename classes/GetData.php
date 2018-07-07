@@ -1,18 +1,37 @@
 <?php
-class GetData {
-  
-  private $id = 0;
 
+class GetData
+{
+  private $id = 0;
+# -----------------------------------------------------------------------------------------------------------------------------
   public function __construct($id)
   {
     $this->id = $id;
   }
-  
-  protected function getData($id)
+# -----------------------------------------------------------------------------------------------------------------------------
+  public function currencyInteger($num)
   {
-    $date = (new DateTime)->format("y:m:d h:i:s");
-    $id  = (string)$id;
-    $url = "";
+    if ($num === false)
+    {
+      return 0;
+    }
+    $num = (float)$num;
+    if ($num == 0)
+    {
+      return 0;
+    }
+    $num = $num * 100;
+    $num = (int)$num;
+    return $num;
+  }
+# -----------------------------------------------------------------------------------------------------------------------------
+  public function getData()
+  {
+    $result = array();
+    $date   = (new DateTime)->format("y:m:d h:i:s");
+    $id     = (string)$this->id;
+    $url    = "";
+    
     $url_order_info = 'https://api.bigcommerce.com/stores/'. CreditConfig::shop_hash .'/v2/orders/'.$id;
     
     $ch = curl_init();
@@ -22,7 +41,7 @@ class GetData {
     curl_setopt_array($ch, array
     (
       CURLOPT_HTTPHEADER      => CreditConfig::headers,
-      CURLOPT_URL             => url,
+      CURLOPT_URL             => $url,
       CURLOPT_RETURNTRANSFER  => true,
       CURLOPT_FAILONERROR     => true
     ));
@@ -157,7 +176,7 @@ class GetData {
 # -----------------------------------------------------------------------------------------------------------------------------
       return "CURL_ERROR";
     }
-  
+    
     if (!$response_products || strlen(trim($response_products)) == 0)
     {
       return "REPLY_CONTENT_NULL";
@@ -177,18 +196,16 @@ class GetData {
 # -----------------------------------------------------------------------------------------------------------------------------
       return "REPLY_CONTENT_NOT_VALID";
     }
-  
-    curl_close($ch);
     
+    curl_close($ch);
 ###############################################################################################################################
-  
     $id            = (int)$json_response_info['id'];
     $status        = (string)strtolower($json_response_info['custom_status']);
     $date_created  = (int)strtotime($json_response_info['date_created']);
     $date_modified = (int)strtotime($json_response_info['date_modified']);
-    $products      = (int)currencyInteger($json_response_info['subtotal_ex_tax']);
-    $shipping      = (int)currencyInteger($json_response_info['shipping_cost_ex_tax']);
-    $tax	         = (int)currencyInteger($json_response_info['total_tax']);
+    $products      = (int)$this->currencyInteger($json_response_info['subtotal_ex_tax']);
+    $shipping      = (int)$this->currencyInteger($json_response_info['shipping_cost_ex_tax']);
+    $tax	         = (int)$this->currencyInteger($json_response_info['total_tax']);
     
     if ($id == 0)
     {
@@ -204,8 +221,8 @@ class GetData {
       if ($item['sku'] === CreditConfig::credit_SKU)
       {
         $credit_qty      = (int)$item['quantity'];
-        $credit_ppu      = (int)currencyInteger($item['price_ex_tax']);
-        $credit_cost     = (int)currencyInteger($item['total_ex_tax']);
+        $credit_ppu      = (int)$this->currencyInteger($item['price_ex_tax']);
+        $credit_cost     = (int)$this->currencyInteger($item['total_ex_tax']);
       }
     }
     
@@ -232,7 +249,22 @@ class GetData {
       }
     }
     
-    return "READY";
+    $result['id']            = $id;
+    $result['status']        = $status;
+    $result['customer']      = $customer;
+    $result['email']         = $email;
+    $result['date_created']  = $date_created;
+    $result['date_modified'] = $date_modified;
+    $result['products']      = $products;
+    $result['shipping']      = $shipping;
+    $result['tax']           = $tax;
+    $result['credit_qty']    = $credit_qty;
+    $result['credit_ppu']    = $credit_ppu;
+    $result['creditable']    = $creditable;
+    $result['credit_pct']    = CreditConfig::credit_pct;
+    $result['credit_issued'] = $credit_issued;
+
+    return $result;
   }
 }
 ?>

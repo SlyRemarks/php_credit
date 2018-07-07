@@ -2,12 +2,20 @@
 
 // UPDATE SCHEMA FOR TABLE 'ORDERS' IN DATABASE:
 
-/*
+require_once("../assets/php_credit_config.php");
 
-require_once("assets/config.php");
-
-try {
-  $conn = new PDO("mysql:host=$servername;port=$port;dbname=$database", $username, $password, $pdo_options);
+try
+{
+  $conn = new PDO
+  (
+    "mysql:host=" . CreditConfig::servername . ";" .
+                  "port="       . CreditConfig::port . ";" .
+                  "dbname="     . CreditConfig::database . ";" .
+                  "charset=utf8",
+                   CreditConfig::username,
+                   CreditConfig::password,
+                   CreditConfig::pdo_options
+  );
 
   echo "< CONNECTED SUCCESSFULLY >" . "\n";
 
@@ -40,7 +48,5 @@ catch(PDOException $e) {
 }
 
 $conn = null;
-
-*/
 
 ?>

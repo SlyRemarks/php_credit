@@ -101,14 +101,12 @@ foreach ($list_array as $value)
 {
   foreach ($value as $value_b)
   {
-    echo $value_b['id'] . "\n";
     array_push($orders_undone, $value_b['id']);           # Get order ID numbers from the returned array.
   }
 }
 
 foreach ($orders_undone as $order)
 {
-  echo "$order \n";
   $id       = (string)$order;
   $get_data = (new GetData($id))->getData();                # Call the BigCommerce API for order details.
   $counting_orders = $counting_orders++;
@@ -118,7 +116,6 @@ foreach ($orders_undone as $order)
   }
   if (!empty($get_data))
   {
-    echo "TEST \n";
     (new ConnectDB($get_data))->connectDB();              # Enter results in DB.
   }
 }

@@ -1,26 +1,33 @@
 <?php
-class ConnectDB {
-  protected function connectDB()
+
+class ConnectDB
+{
+  private $result = array();
+# -----------------------------------------------------------------------------------------------------------------------------
+  public function __construct($result)
   {
-    global $id,           $status,        $customer,   $email,
-           $date_created, $date_modified, $products,   $shipping,
-           $tax,          $credit_qty,    $credit_ppu, $creditable,
-           $credit_pct,   $credit_issued;
+    $this->result = $result;
+  }
+# -----------------------------------------------------------------------------------------------------------------------------
+  public function connectDB()
+  {
     try
     {
-      $conn = new PDO("mysql:host=" . CreditConfig::servername . ";" .
-                      "port="       . CreditConfig::port . ";" .
-                      "dbname="     . CreditConfig::database . ";" .
-                      "charset=utf8",
-                       CreditConfig::username,
-                       CreditConfig::password,
-                       CreditConfig::pdo_options
+      $conn = new PDO
+      (
+        "mysql:host=" . CreditConfig::servername . ";" .
+        "port="       . CreditConfig::port . ";" .
+        "dbname="     . CreditConfig::database . ";" .
+        "charset=utf8", CreditConfig::username,
+                        CreditConfig::password,
+                        CreditConfig::pdo_options
       );
       
       $stmt = $conn->prepare(
         
       "INSERT INTO orders (
-        id,  status,
+        id,
+        status,
         customer,
         email,
         date_created,
@@ -67,39 +74,42 @@ class ConnectDB {
         credit_issued= :credit_issued"
       );
    
-      $stmt->bindParam(':id'           , $id           , PDO::PARAM_INT);
-      $stmt->bindParam(':status'       , $status       , PDO::PARAM_STR);
-      $stmt->bindParam(':customer'     , $customer     , PDO::PARAM_STR);
-      $stmt->bindParam(':email'        , $email        , PDO::PARAM_STR);
-      $stmt->bindParam(':date_created' , $date_created , PDO::PARAM_INT);
-      $stmt->bindParam(':date_modified', $date_modified, PDO::PARAM_INT);
-      $stmt->bindParam(':products'     , $products     , PDO::PARAM_INT);
-      $stmt->bindParam(':shipping'     , $shipping     , PDO::PARAM_INT);
-      $stmt->bindParam(':tax'          , $tax          , PDO::PARAM_INT);
-      $stmt->bindParam(':credit_qty'   , $credit_qty   , PDO::PARAM_INT);
-      $stmt->bindParam(':credit_ppu'   , $credit_ppu   , PDO::PARAM_INT);
-      $stmt->bindParam(':creditable'   , $creditable   , PDO::PARAM_INT);
-      $stmt->bindParam(':credit_pct'   , $credit_pct   , PDO::PARAM_INT);
-      $stmt->bindParam(':credit_issued', $credit_issued, PDO::PARAM_INT);
+      $stmt->bindParam(':id'            , $this->result['id']            , PDO::PARAM_INT);
+      $stmt->bindParam(':status'        , $this->result['status']        , PDO::PARAM_STR);
+      $stmt->bindParam(':customer'      , $this->result['customer']      , PDO::PARAM_STR);
+      $stmt->bindParam(':email'         , $this->result['email']         , PDO::PARAM_STR);
+      $stmt->bindParam(':date_created'  , $this->result['date_created']  , PDO::PARAM_INT);
+      $stmt->bindParam(':date_modified' , $this->result['date_modified'] , PDO::PARAM_INT);
+      $stmt->bindParam(':products'      , $this->result['products']      , PDO::PARAM_INT);
+      $stmt->bindParam(':shipping'      , $this->result['shipping']      , PDO::PARAM_INT);
+      $stmt->bindParam(':tax'           , $this->result['tax']           , PDO::PARAM_INT);
+      $stmt->bindParam(':credit_qty'    , $this->result['credit_qty']    , PDO::PARAM_INT);
+      $stmt->bindParam(':credit_ppu'    , $this->result['credit_ppu']    , PDO::PARAM_INT);
+      $stmt->bindParam(':creditable'    , $this->result['creditable']    , PDO::PARAM_INT);
+      $stmt->bindParam(':credit_pct'    , $this->result['credit_pct']    , PDO::PARAM_INT);
+      $stmt->bindParam(':credit_issued' , $this->result['credit_issued'] , PDO::PARAM_INT);
       
       $stmt->execute();
     
-      echo "< ORDER #" . "$id" . ": RECORD UPDATED SUCCESSFULLY >" . "\n";
+      echo "< ORDER #" . $this->result['id'] . ": RECORD UPDATED SUCCESSFULLY >" . "\n";
     }
     
     catch(PDOException $e) {
-      $date = new DateTime();
-      $date = $date->format("y:m:d h:i:s");
-      $pdo_error = $e->getMessage();
+      $date = (new DateTime)->format("y:m:d h:i:s");
+      $pdo_error_msg  = $e->getMessage();
+      $pdo_error_line = $e->getLine();
+      $pdo_error_file = $e->getFile();
+      
 # -----------------------------------------------------------------------------------------------------------------------------
       error_log
       (
-        "WEBHOOK EMPTY BODY," .
-        __FILE__ . "," . __LINE__, 3,
-        "/var/log/php_credit/error.log"
+        "CONNECTION FAILED: $pdo_error_msg" .
+        $pdo_error_file . "," . $pdo_error_line, 3,
+        CreditConfig::errorlog . "\n"
       );
 # -----------------------------------------------------------------------------------------------------------------------------
-      echo "CONNECTION FAILED: " . $pdo_error . "\n";
+
+      echo "CONNECTION FAILED: " . $pdo_error_msg . "\n";
     }
     
     $conn = null;

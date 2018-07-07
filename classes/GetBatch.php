@@ -8,7 +8,8 @@ class GetBatch
   {
     $this->query = $query;
   }
-  function getBatch()
+  
+  public function getBatch()
   {
     $query = $this->query;
     $date = (new DateTime)->format("y:m:d h:i:s");

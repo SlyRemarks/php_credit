@@ -1,5 +1,6 @@
 <?php
-class GetLatest {
+class GetLatest
+{
   function getLatest()
   {
     $date = (new DateTime)->format("y:m:d h:i:s");

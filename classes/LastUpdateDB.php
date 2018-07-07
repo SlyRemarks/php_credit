@@ -1,7 +1,7 @@
 <?php
 
-class LastUpdateDB {
-  
+class LastUpdateDB
+{
   private $date_modified;
   
   public function __construct($date_modified)
